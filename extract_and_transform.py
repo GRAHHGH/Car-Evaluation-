@@ -1,5 +1,8 @@
 import mysql.connector
 import pandas as pd 
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score
 
 try: 
     connection = mysql.connector.connect(
@@ -23,24 +26,6 @@ try:
     print("Data succefully loaded into pandas")
     print(df.head())
 
-    price_map = {"low":1, "med":2, "high":3, "vhigh":4}
-    door_map = {"1":1, "2":2, "3":3, "4":4, "5more":5}
-    persons_map = {"1":1, "2":2, "3":3, "4":4, "more":5}
-    boot_map = {"small":1, "med":2, "big":3}
-    safety_map = {"low":1, "med":2, "high":3}
-    class_map = {'unacc':0, 'acc':1, 'good':2, 'vgood':3}
-
-    df['buying_price'] = df["buying_price"].map(price_map)
-    df['maint_cost'] = df["maint_cost"].map(price_map)
-    df['doors'] = df['doors'].map(door_map)
-    df['persons'] = df['persons'].map(persons_map)
-    df['lug_boot'] = df['lug_boot'].map(boot_map)
-    df['safety'] = df['safety'].map(safety_map)
-    df['acceptability_class'] = df["acceptability_class"].map(class_map)
-
-    print("Success transform")
-    print(df.head())
-
 except mysql.connector.ERROR as error:
     print(f"Database error occured {error}")
 
@@ -48,3 +33,33 @@ finally:
     if 'connection' in locals() and connection.is_connected():
         cursor.close()
         connection.close()
+
+price_map = {"low":1, "med":2, "high":3, "vhigh":4}
+door_map = {"1":1, "2":2, "3":3, "4":4, "5more":5}
+persons_map = {"1":1, "2":2, "3":3, "4":4, "more":5}
+boot_map = {"small":1, "med":2, "big":3}
+safety_map = {"low":1, "med":2, "high":3}
+class_map = {'unacc':0, 'acc':1, 'good':2, 'vgood':3}
+
+df['buying_price'] = df["buying_price"].map(price_map)
+df['maint_cost'] = df["maint_cost"].map(price_map)
+df['doors'] = df['doors'].map(door_map)
+df['persons'] = df['persons'].map(persons_map)
+df['lug_boot'] = df['lug_boot'].map(boot_map)
+df['safety'] = df['safety'].map(safety_map)
+df['acceptability_class'] = df["acceptability_class"].map(class_map)
+
+print("Success transform")
+print(df.head())
+
+X = df.drop('acceptability_class', axis=1)
+y = df['acceptability_class']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+model = DecisionTreeClassifier()
+model.fit(X_train, y_train)
+predictions = model.predict(X_test)
+
+score = accuracy_score(y_test, predictions)
+print(f"ML model score {score * 100:.2f}% accuracy")
