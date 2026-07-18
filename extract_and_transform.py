@@ -6,7 +6,7 @@ from sklearn.metrics import accuracy_score
 
 try: 
     connection = mysql.connector.connect(
-        host="localhost",
+        host="db",
         user="root",
         password="1234",  
         database="uci_projects"
@@ -62,4 +62,4 @@ model.fit(X_train, y_train)
 predictions = model.predict(X_test)
 
 score = accuracy_score(y_test, predictions)
-print(f"ML model score {score * 100:.2f}% accuracy")
+print(f"ML model score {score * 100:.2f}% accuracy")   
