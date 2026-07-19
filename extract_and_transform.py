@@ -26,7 +26,7 @@ try:
     print("Data succefully loaded into pandas")
     print(df.head())
 
-except mysql.connector.ERROR as error:
+except mysql.connector.Error as error:
     print(f"Database error occured {error}")
 
 finally:
@@ -34,27 +34,35 @@ finally:
         cursor.close()
         connection.close()
 
-price_map = {"low":1, "med":2, "high":3, "vhigh":4}
-door_map = {"1":1, "2":2, "3":3, "4":4, "5more":5}
-persons_map = {"1":1, "2":2, "3":3, "4":4, "more":5}
-boot_map = {"small":1, "med":2, "big":3}
-safety_map = {"low":1, "med":2, "high":3}
-class_map = {'unacc':0, 'acc':1, 'good':2, 'vgood':3}
+for col in df.columns:
+    df[col] = df[col].astype(str).str.strip()
 
-df['buying_price'] = df["buying_price"].map(price_map)
-df['maint_cost'] = df["maint_cost"].map(price_map)
-df['doors'] = df['doors'].map(door_map)
+price_map = {'vhigh': 4, 'high': 3, 'med': 2, 'low': 1}
+df['buying'] = df['buying'].map(price_map)
+df['maint'] = df['maint'].map(price_map)
+
+doors_map = {'2': 2, '3': 3, '4': 4, '5more': 5}
+df['doors'] = df['doors'].map(doors_map)
+
+persons_map = {'2': 2, '4': 4, 'more': 5}
 df['persons'] = df['persons'].map(persons_map)
-df['lug_boot'] = df['lug_boot'].map(boot_map)
-df['safety'] = df['safety'].map(safety_map)
-df['acceptability_class'] = df["acceptability_class"].map(class_map)
 
-print("Success transform")
+lug_boot_map = {'small': 1, 'med': 2, 'big': 3}
+df['lug_boot'] = df['lug_boot'].map(lug_boot_map)
+
+safety_map = {'low': 1, 'med': 2, 'high': 3}
+df['safety'] = df['safety'].map(safety_map)
+
+class_map = {'unacc': 0, 'acc': 1, 'good': 2, 'vgood': 3}
+df['class_value'] = df['class_value'].map(class_map)
+
+df = df.dropna()
+
+print("Success transform, Remaining rows:", len(df))
 print(df.head())
 
-X = df.drop('acceptability_class', axis=1)
-y = df['acceptability_class']
-
+X = df.drop('class_value', axis=1)
+y = df['class_value']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 model = DecisionTreeClassifier()

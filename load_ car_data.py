@@ -2,10 +2,11 @@ import mysql.connector
 
 try: 
     connection = mysql.connector.connect(
-        host="localhost",
+        host="127.0.0.1",   
         user="root",
-        password="1234",  
-        database="uci_projects"
+        password="1234",    
+        database="uci_projects",
+        port=3307         
     )
     cursor = connection.cursor()
     print("successfully added to the database")
